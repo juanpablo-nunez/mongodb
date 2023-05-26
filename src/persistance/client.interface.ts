@@ -1,7 +1,7 @@
 export interface Client {
   firstName: string;
   lastName: string;
-  phone: number;
+  phone: string;
   address: {
     city: string;
     zone: string;

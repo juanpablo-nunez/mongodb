@@ -3,19 +3,26 @@ import {
   Controller,
   Delete,
   Get,
+  HttpException,
+  HttpStatus,
   Param,
   Patch,
   Post,
+  Put,
+  Res,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
-import { Client } from 'src/schemas/client.interface';
-import { ClientDto } from 'src/dto/client.dto';
-import { ClientService } from 'src/service/client/client.service';
+import { Client } from 'src/persistance/client.interface';
+import { ClientDto } from '../../dto/client.dto';
+import { ClientService } from '../../service/client/client.service';
 
 @Controller('client')
 export class ClientController {
   constructor(private readonly clientService: ClientService) {}
 
   @Post()
+  @UsePipes(new ValidationPipe({ groups: ['post'] }))
   async create(@Body() createClientDto: ClientDto): Promise<Client> {
     return this.clientService.create(createClientDto);
   }
@@ -30,7 +37,8 @@ export class ClientController {
     return this.clientService.findByCity(city);
   }
 
-  @Patch(':id')
+  @Put(':id')
+  @UsePipes(new ValidationPipe({ groups: ['put'] }))
   async update(
     @Param('id') id: string,
     @Body() createClientDto: ClientDto,

@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Client } from 'src/schemas/client.interface';
-import { ClientDto } from 'src/dto/client.dto';
+import { Client } from '../../persistance/client.interface';
+
+import { ClientDto } from '../../dto/client.dto';
 @Injectable()
 export class ClientService {
   constructor(
@@ -23,12 +24,26 @@ export class ClientService {
   }
 
   async update(id: string, CreateClientDto: ClientDto): Promise<Client> {
+    await this.findById(id);
     return this.clientModel
       .findByIdAndUpdate(id, CreateClientDto, { new: true })
       .exec();
   }
 
+  async findById(id: string): Promise<Client> {
+    try {
+      const client = await this.clientModel.findById(id);
+      if (!client) {
+        throw new NotFoundException('Sale not found!');
+      }
+      return client;
+    } catch (error) {
+      throw new NotFoundException('Sale not found!');
+    }
+  }
+
   async delete(id: string): Promise<Client> {
+    await this.findById(id);
     return this.clientModel.findByIdAndRemove(id).exec();
   }
 }

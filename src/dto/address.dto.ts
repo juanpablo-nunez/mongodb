@@ -1,13 +1,29 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import {
+  IsDefined,
+  IsEmpty,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Length,
+  ValidateIf,
+} from 'class-validator';
 
 export class AddressDto {
+  @IsDefined({ groups: ['put'] })
   @IsString()
-  @IsNotEmpty()
+  @Length(3, 20)
+  @IsNotEmpty({ groups: ['post'] })
   city: string;
+
+  @IsDefined({ groups: ['put'] })
   @IsString()
-  @IsNotEmpty()
+  @Length(3, 20)
+  @IsNotEmpty({ groups: ['post'] })
   zone: string;
+
+  @IsDefined({ groups: ['put'] })
   @IsString()
-  @IsNotEmpty()
+  @Length(3, 20)
+  @IsNotEmpty({ groups: ['post'] })
   street: string;
 }
