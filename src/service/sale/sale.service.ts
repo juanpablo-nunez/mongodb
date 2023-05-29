@@ -3,11 +3,14 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { SaleDto } from '../../dto/sale.dto';
 import { Sale } from '../../persistance/sale.interface';
-import { ObjectIdDto } from 'src/dto/tools/objectid.dto';
-import { ExceptionsHandler } from '@nestjs/core/exceptions/exceptions-handler';
+import Redis from 'ioredis';
+import { InjectRedis } from '@liaoliaots/nestjs-redis';
 @Injectable()
 export class SaleService {
-  constructor(@InjectModel('Sale') private readonly saleModel: Model<Sale>) {}
+  constructor(
+    @InjectModel('Sale') private readonly saleModel: Model<Sale>,
+    @InjectRedis() private readonly redis: Redis,
+  ) {}
 
   async create(createSaleDto: SaleDto): Promise<Sale> {
     const createdSale = new this.saleModel(createSaleDto);
@@ -55,7 +58,12 @@ export class SaleService {
   // }
 
   async summarizeByItem(): Promise<Sale[]> {
-    return this.saleModel
+    const cachedData = await this.redis.get('summarizeByItem');
+
+    if (cachedData) {
+      return JSON.parse(cachedData);
+    }
+    const data = await this.saleModel
       .aggregate([
         {
           $group: {
@@ -72,10 +80,19 @@ export class SaleService {
         },
       ])
       .exec();
+    console.log(data);
+
+    await this.redis.set('summarizeByItem', JSON.stringify(data));
+    return data;
   }
 
   async summarizeByClient(): Promise<Sale[]> {
-    return this.saleModel
+    const cachedData = await this.redis.get('summarizeByClient');
+
+    if (cachedData) {
+      return JSON.parse(cachedData);
+    }
+    const data = await this.saleModel
       .aggregate([
         {
           $group: {
@@ -92,6 +109,8 @@ export class SaleService {
         },
       ])
       .exec();
+    await this.redis.set('summarizeByClient', JSON.stringify(data));
+    return data;
   }
 
   async update(id: string, createSaleDto: SaleDto): Promise<Sale> {

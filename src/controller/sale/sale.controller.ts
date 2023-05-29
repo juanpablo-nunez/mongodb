@@ -4,8 +4,6 @@ import {
   Delete,
   Get,
   Param,
-  ParseUUIDPipe,
-  Patch,
   Post,
   Put,
   UsePipes,
@@ -14,11 +12,6 @@ import {
 import { SaleService } from '../../service/sale/sale.service';
 import { SaleDto } from '../../dto/sale.dto';
 import { Sale } from '../../persistance/sale.interface';
-import { UUID } from 'crypto';
-import { version } from 'os';
-import { IsMongoId } from 'class-validator';
-import { ObjectIdValidationPipe } from 'src/guard/objectid.guard';
-import { ObjectIdDto } from 'src/dto/tools/objectid.dto';
 
 @Controller('sale')
 export class SaleController {
@@ -36,7 +29,7 @@ export class SaleController {
   }
 
   @Get('summary/item')
-  async summarizeByItem(): Promise<Sale[]> {
+  async summarizeByItem() {
     return this.saleService.summarizeByItem();
   }
 

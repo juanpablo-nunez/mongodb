@@ -2,10 +2,17 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ServiceModule } from './service/service.module';
 import { ControllerModule } from './controller/controller.module';
+import { RedisModule } from '@liaoliaots/nestjs-redis';
 
 @Module({
   imports: [
     MongooseModule.forRoot('mongodb://localhost:27017/client_abm'),
+    RedisModule.forRoot({
+      config: {
+        host: 'localhost',
+        port: 6379,
+      },
+    }),
     ServiceModule,
     ControllerModule,
   ],
