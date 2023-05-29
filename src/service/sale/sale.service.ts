@@ -7,6 +7,8 @@ import Redis from 'ioredis';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 @Injectable()
 export class SaleService {
+  private TIME_CACHE = 2;
+  private TYPE_TOKEN = 'EX';
   constructor(
     @InjectModel('Sale') private readonly saleModel: Model<Sale>,
     @InjectRedis() private readonly redis: Redis,
@@ -80,9 +82,12 @@ export class SaleService {
         },
       ])
       .exec();
-    console.log(data);
-
-    await this.redis.set('summarizeByItem', JSON.stringify(data));
+    await this.redis.set(
+      'summarizeByItem',
+      JSON.stringify(data),
+      'EX',
+      this.TIME_CACHE,
+    );
     return data;
   }
 
@@ -109,7 +114,12 @@ export class SaleService {
         },
       ])
       .exec();
-    await this.redis.set('summarizeByClient', JSON.stringify(data));
+    await this.redis.set(
+      'summarizeByClient',
+      JSON.stringify(data),
+      'EX',
+      this.TIME_CACHE,
+    );
     return data;
   }
 
